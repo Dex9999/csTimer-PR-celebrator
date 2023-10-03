@@ -124,11 +124,37 @@ async function getPRs() {
 
     return json.personal_records;
 }
-document.querySelector("#toolsDiv > div:nth-child(1) > span > select:nth-child(2)").appendChild(new Option("PR Viewer", "pr_viewer")).addEventListener("change", () => {
-if(this.value == "pr_viewer"){
-    document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML = ""
+
+let toolSelect = document.querySelector("#toolsDiv > div:nth-child(1) > span > select:nth-child(2)")
+toolSelect.appendChild(new Option("PR Viewer", "pr_viewer"))
+toolSelect.addEventListener("change", async () => {
+if(toolSelect.value == "pr_viewer"){
+    updatePRs();
 }
 });
+async function updatePRs(){
+    let purrs = await getPRs();
+    console.log(purrs)
+    let coolDiv = "<h4>Your PRs</h4>";
+    for (var event in purrs) {
+        coolDiv += `${event}: ${(purrs[event].single.best)/100}<br>`
+    }
+    console.log(coolDiv)
+    document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML = coolDiv;
+}
+// special for browser only testing
+// async function getPRs() {
+//     let wcaId = false;
+//     if (!wcaId || wcaId == "") {
+//         alert("Please set your WCA ID by clicking the extension icon\nSetting to default: 2009ZEMD01");
+//         wcaId = "2009ZEMD01";
+//     }
+//     // console.log(wcaId)
+//     let response = await fetch("https://www.worldcubeassociation.org/api/v0/persons/" + wcaId)
+//     let json = await response.json();
+
+//     return json.personal_records;
+// }
 
 async function displayMsg(text) {
 
