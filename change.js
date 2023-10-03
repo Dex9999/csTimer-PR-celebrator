@@ -138,7 +138,7 @@ document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nt
 
 async function updatePRs() {
   let purrs = await getPRs();
-  console.log(purrs);
+  //console.log(purrs);
   document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(2) > td:nth-child(2)").style.color = defaultLinkColor;
   try{document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)").style.color = defaultLinkColor}catch{};
 
@@ -184,10 +184,10 @@ async function updatePRs() {
   }
 
   coolDiv =
-    `<h3 style="text-align: center;">Your PRs</h3><h4 style="text-align: right;text-decoration: underline;">single | average<h4>` +
+    `<h3 style="text-align: center;">Your PRs</h3><h4 style="text-align: right;text-decoration: underline;">single | average</h4>` +
     coolDiv;
 
-  console.log(coolDiv);
+  //console.log(coolDiv);
   document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML =
     coolDiv;
 }
