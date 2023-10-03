@@ -1,7 +1,7 @@
 
 //clear div
 //document.querySelector("#toolsDiv > div:nth-child(1) >div")
-
+// document.querySelector("#toolsDiv > div:nth-child(1) > span > select:nth-child(2)").appendChild(new Option("PR Viewer", "pr_viewer"));
 let scrollNum;
 chrome.storage.sync.get(['scroll'], function (items) {
     scrollNum = items.scroll;
