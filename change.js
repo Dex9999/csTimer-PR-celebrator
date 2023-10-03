@@ -10,6 +10,8 @@ chrome.storage.sync.get(['scroll'], function (items) {
     }
 });
 
+let defaultLinkColor = getComputedStyle(document.querySelector(".click")).color;
+
 const conversionTable = {
     "clkwca": "clock",
     "222so": "222",
@@ -55,8 +57,8 @@ async function process() {
             let currentAo5 = (element => element ? element.textContent : null)(document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)"))
             
             //reset color
-            document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(2) > td:nth-child(2)").style.color = "#169";
-            if(currentAo5) document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)").style.color = "#169";
+            document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(2) > td:nth-child(2)").style.color = defaultLinkColor;
+            if(currentAo5) document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)").style.color = defaultLinkColor;
             
             
             //console.log(currentEvent, currentSingle, currentAo5)
@@ -137,6 +139,9 @@ document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nt
 async function updatePRs() {
   let purrs = await getPRs();
   console.log(purrs);
+  document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(2) > td:nth-child(2)").style.color = defaultLinkColor;
+  try{document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)").style.color = defaultLinkColor}catch{};
+
   const customEventOrder = [
     "clock",
     "222",
