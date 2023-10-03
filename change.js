@@ -124,6 +124,11 @@ async function getPRs() {
 
     return json.personal_records;
 }
+document.querySelector("#toolsDiv > div:nth-child(1) > span > select:nth-child(2)").appendChild(new Option("PR Viewer", "pr_viewer")).addEventListener("change", () => {
+if(this.value == "pr_viewer"){
+    document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML = ""
+}
+});
 
 async function displayMsg(text) {
 
