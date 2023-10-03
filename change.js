@@ -106,11 +106,7 @@ async function process() {
 
     // observer.observe(toMonitor, config)
 }
-document.querySelector("#toolsDiv > div:nth-child(1) > span > select:nth-child(2)").appendChild(new Option("PR Viewer", "pr_viewer")).addEventListener("change", () => {
-    if(this.value == "pr_viewer"){
-        
-    }
-});
+
 async function getPRs() {
     let items = await chrome.storage.sync.get(['wcaId'])
     let wcaId = items.wcaId;
@@ -125,36 +121,71 @@ async function getPRs() {
     return json.personal_records;
 }
 
-let toolSelect = document.querySelector("#toolsDiv > div:nth-child(1) > span > select:nth-child(2)")
-toolSelect.appendChild(new Option("PR Viewer", "pr_viewer"))
+let toolSelect = document.querySelector(
+  "#toolsDiv > div:nth-child(1) > span > select:nth-child(2)"
+);
+toolSelect.appendChild(new Option("PR Viewer", "pr_viewer"));
 toolSelect.addEventListener("change", async () => {
-if(toolSelect.value == "pr_viewer"){
+  if (toolSelect.value == "pr_viewer") {
     updatePRs();
-}
+  }
 });
-async function updatePRs(){
-    let purrs = await getPRs();
-    console.log(purrs)
-    let coolDiv = "<h4>Your PRs</h4>";
-    for (var event in purrs) {
-        coolDiv += `${event}: ${(purrs[event].single.best)/100}<br>`
-    }
-    console.log(coolDiv)
-    document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML = coolDiv;
-}
-// special for browser only testing
-// async function getPRs() {
-//     let wcaId = false;
-//     if (!wcaId || wcaId == "") {
-//         alert("Please set your WCA ID by clicking the extension icon\nSetting to default: 2009ZEMD01");
-//         wcaId = "2009ZEMD01";
-//     }
-//     // console.log(wcaId)
-//     let response = await fetch("https://www.worldcubeassociation.org/api/v0/persons/" + wcaId)
-//     let json = await response.json();
 
-//     return json.personal_records;
-// }
+//on event change trigger updatePRs()
+document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nth-child(2)").addEventListener("change", (event) => {updatePRs()});
+
+async function updatePRs() {
+  let purrs = await getPRs();
+  console.log(purrs);
+  const customEventOrder = [
+    "clock",
+    "222",
+    "333",
+    "444",
+    "555",
+    "666",
+    "777",
+    "pyram",
+    "skewb",
+    "sq1",
+    "333bf",
+    "444bf",
+    "555bf",
+    "333fm",
+  ];
+  const reversedConversionTable = Object.keys(conversionTable).reduce(
+    (obj, key) => ({ ...obj, [conversionTable[key]]: key }),
+    {}
+  );
+  let coolDiv = "";
+  for (const event of customEventOrder) {
+    if (event in purrs) {
+      
+        const singleBest = purrs[event].single.best / 100;
+        const avgBest = purrs[event].average ? purrs[event].average.best / 100 : false;
+        if (
+          reversedConversionTable[event] ==
+          document.querySelector(
+            "#scrambleDiv > div.title > nobr:nth-child(1) > select:nth-child(2)"
+          ).value
+        ) {
+          coolDiv =
+            `<p><b>${event}:</b> ${Math.floor(singleBest / 60) > 0 ? `${Math.floor(singleBest / 60)}:` : ""}${(singleBest-Math.floor(singleBest / 60)*60).toFixed(2)} ${avgBest ? ` | ${Math.floor(avgBest / 60) > 0 ? `${Math.floor(avgBest / 60)}:` : ""}${(avgBest-Math.floor(singleBest / 60)*60).toFixed(2)}` : ""}</p><br>` + coolDiv;
+        } else {
+          coolDiv += `<p><b>${event}:</b> ${Math.floor(singleBest / 60) > 0 ? `${Math.floor(singleBest / 60)}:` : ""}${(singleBest-Math.floor(singleBest / 60)*60).toFixed(2)} ${avgBest ? ` | ${Math.floor(avgBest / 60) > 0 ? `${Math.floor(avgBest / 60)}:` : ""}${(avgBest-Math.floor(singleBest / 60)*60).toFixed(2)}` : ""}</p><br>`;
+        }
+      
+    }
+  }
+
+  coolDiv =
+    `<h3 style="text-align: center;">Your PRs</h3><h4 style="text-align: right;text-decoration: underline;">single | average<h4>` +
+    coolDiv;
+
+  console.log(coolDiv);
+  document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML =
+    coolDiv;
+}
 
 async function displayMsg(text) {
 
