@@ -2,11 +2,35 @@
 //clear div
 //document.querySelector("#toolsDiv > div:nth-child(1) >div")
 // document.querySelector("#toolsDiv > div:nth-child(1) > span > select:nth-child(2)").appendChild(new Option("PR Viewer", "pr_viewer"));
-let scrollNum;
+let scrollNum = 4.0;
 chrome.storage.sync.get(['scroll'], function (items) {
     scrollNum = items.scroll;
     if (scrollNum == undefined || isNaN(parseInt(scrollNum))) {
         scrollNum = 4.0;
+    }
+});
+
+let history = false;
+chrome.storage.sync.get(['history'], function (items) {
+  history = items.history;
+    if (history == undefined) {
+      history = false;
+    }
+});
+
+let highlight = false;
+chrome.storage.sync.get(['highlight'], function (items) {
+  highlight = items.highlight;
+    if (highlight == undefined) {
+      highlight = false;
+    }
+});
+
+let hex = "#00FF00";
+  chrome.storage.sync.get(['hex'], function (items) {
+  hex = items.hex;
+    if (hex == undefined) {
+      hex = "#00FF00";
     }
 });
 
@@ -69,7 +93,6 @@ async function process() {
 
             
             if (prs[csEvent]) {
-            
                 // console.log("current average: "+currentSingle+"\ncurrent avg: "+currentAo5+"\nPR avg: "+prs[csEvent].average.best / 100 + "\nPR single: "+prs[csEvent].single.best / 100)
                 try {
                     if(currentAo5.includes(":")){
@@ -80,7 +103,7 @@ async function process() {
                     }
                     // console.log(currentAverage)
                     if ((prs[csEvent].average.best) / 100 >= currentAo5 && currentAo5 != "DNF" && !(currentAo5 <= 0)) {
-                        document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)").style.color = "green";
+                        !(highlight) ? document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)").style.color = hex : document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(4) > td:nth-child(2)").style.backgroundColor = hex;
                         displayMsg("Under PR Average!");
                     }
                 } catch {
@@ -95,8 +118,42 @@ async function process() {
                 }
                 // console.log(currentSingle)
                 if ((prs[csEvent].single.best) / 100 >= (currentSingle)) {
-                    document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(2) > td:nth-child(2)").style.color = "green";
+                  !(highlight) ? document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(2) > td:nth-child(2)").style.color = hex : document.querySelector("#stats > div.statc > table > tbody > tr:nth-child(2) > td:nth-child(2)").style.backgroundColor = hex;
                     displayMsg("Under PR Single!");
+                }
+
+                //check history should be shown
+                if(history){
+                  //single
+                  let historySingle;
+                  document.querySelectorAll("#stats > div.stattl > div > table > tbody > tr > td:nth-child(2)").forEach((time)=>{
+                    historySingle = time.textContent;
+                    if(time.textContent.includes(":")){
+                        //handle minutes
+                        let minutes = time.textContent.split(":")[0];
+                        let seconds = time.textContent.split(":")[1];
+                        historySingle = minutes * 60 + parseFloat(seconds);
+                    }
+                    // console.log(currentSingle)
+                    if ((prs[csEvent].single.best) / 100 >= (historySingle)) {
+                      !(highlight) ? time.style.color = hex : time.style.backgroundColor = hex;
+                    }
+                  })
+
+                  let historyAvg;
+                  document.querySelectorAll("#stats > div.stattl > div > table > tbody > tr > td:nth-child(3)").forEach((time)=>{
+                    historyAvg = time.textContent;
+                    if(time.textContent.includes(":")){
+                        //handle minutes
+                        let minutes = time.textContent.split(":")[0];
+                        let seconds = time.textContent.split(":")[1];
+                        historyAvg = minutes * 60 + parseFloat(seconds);
+                    }
+                    // console.log(currentSingle)
+                    if ((prs[csEvent].single.best) / 100 >= (historyAvg)) {
+                      !(highlight) ? time.style.color = hex : time.style.backgroundColor = hex;
+                    }
+                  })
                 }
             } else { 
                 // they dont have a PR
@@ -123,15 +180,34 @@ async function getPRs() {
     return json.personal_records;
 }
 
+//hackey cstimer+ but it works 😭
+const observer = new MutationObserver((mutationsList) => {
+  for (const mutation of mutationsList) {
+      if (mutation.type === "characterData") {
+          if(document.querySelector("head > title").textContent.includes("+")){
+            toolSelect.appendChild(new Option("PR Viewer", "pr_viewer"));
+          }
+          break; 
+      }
+  }
+});
+
+const observerConfig = { characterData: true, subtree: true };
+
+observer.observe(document.head.querySelector("title"), observerConfig);
+
 let toolSelect = document.querySelector(
   "#toolsDiv > div:nth-child(1) > span > select:nth-child(2)"
 );
-toolSelect.appendChild(new Option("PR Viewer", "pr_viewer"));
-toolSelect.addEventListener("change", async () => {
-  if (toolSelect.value == "pr_viewer") {
-    updatePRs();
-  }
-});
+setTimeout(() => {
+  toolSelect.appendChild(new Option("PR Viewer", "pr_viewer"));
+  toolSelect.addEventListener("change", async (event) => {
+    console.log(event.value);
+    if (toolSelect.value == "pr_viewer") {
+      updatePRs();
+    }
+  });
+}, 5000);
 
 //on event change trigger updatePRs()
 document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nth-child(2)").addEventListener("change", (event) => {updatePRs()});

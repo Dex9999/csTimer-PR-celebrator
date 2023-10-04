@@ -10,6 +10,21 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
         scrollElem.innerHTML = items.scroll;
     });
 
+    const hexElem = document.getElementById('currColor');
+    chrome.storage.sync.get(['hex'], function (items) {
+        hexElem.innerHTML = items.hex;
+    });
+
+
+    const historyElem = document.getElementById('history');
+    chrome.storage.sync.get(['history'], function (items) {
+        historyElem.checked = items.history;
+    });
+    const highlightElem = document.getElementById('highlight');
+    chrome.storage.sync.get(['highlight'], function (items) {
+        highlightElem.checked = items.highlight;
+    });
+
     // if not set, make default
     chrome.storage.sync.get(['scroll'], function (items) {
         if (chrome.runtime.lastError) {
@@ -17,6 +32,15 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
         } else {
             if (items.scroll === undefined) {
                 chrome.storage.sync.set({scroll: 3.0});
+            }
+        }
+    });
+    chrome.storage.sync.get(['hex'], function (items) {
+        if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError);
+        } else {
+            if (items.hex === undefined) {
+                chrome.storage.sync.set({hex: "#00FF00"});
             }
         }
     });
@@ -52,4 +76,38 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
         }
     })
 
+    const hexInput = document.getElementById('hex');
+    hexInput.addEventListener('keydown', (e) => {
+        if (e.key == 'Enter') {
+            let x = hexInput.value;
+
+            if (x.length === 7 && x[0] === '#') {
+                chrome.storage.sync.set({
+                    hex: x
+                }, function () {
+                    alert("Highlight color is now set to: " + x);
+                });
+            } else {
+                alert("Please enter a valid hex color");
+            }
+        }
+    })
+
+    const historyInput = document.getElementById('history');
+    historyInput.addEventListener('change', (e) => {
+        chrome.storage.sync.set({
+            history: historyInput.checked
+        }, function () {
+            alert("History is now set to: " + historyInput.checked);
+        });
+    })
+
+    const highlightInput = document.getElementById('highlight');
+    highlightInput.addEventListener('change', (e) => {
+        chrome.storage.sync.set({
+            highlight: highlightInput.checked
+        }, function () {
+            alert("Highlight is now set to: " + highlightInput.checked);
+        });
+    })
 });

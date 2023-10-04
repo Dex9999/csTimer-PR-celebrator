@@ -11,10 +11,8 @@
 <body>
     <style type="text/css">
     body {
-      min-width: 140%;
-      max-width: 140%;
-      min-height: 90%;
-      max-height: 90%;
+      min-width: 240px;
+      min-height: 465px;
       position: relative;
       vertical-align:middle;
     }
@@ -24,9 +22,17 @@
     <p>Current WCA ID:​</p>
     <p style="color: green" id="current"></p>
     <h1>Average Scroll Speed​</h1>
-    <input id="scrollInput" type="text" placeholder="default: 4.0" class="search"/> 
+    <input id="scrollInput" type="text" placeholder="default: 3.0" class="search"/> 
     <p>Current Average Scroll Speed:​</p>
     <p style="color: green" id="currScroll"></p>
     <script src="popup.js"></script>
+    <h2>Text/Highlight Color​</h2>
+    <input id="hex" type="text" placeholder="default: #00FF00" class="search"/> 
+    <p>Current Colour:​</p>
+    <p style="color: green" id="currColor"></p>
+    <h2>History</h2>
+    <input id="history" type="checkbox"/>
+    <h2>Use Highlight​</h2>
+    <input id="highlight" type="checkbox"/> 
   </body>
 </html>
