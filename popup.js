@@ -110,4 +110,12 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
             alert("Highlight is now set to: " + highlightInput.checked);
         });
     })
+    const compSimInput = document.getElementById('compsim');
+    compSimInput.addEventListener('change', (e) => {
+        chrome.storage.sync.set({
+            compSim: compSimInput.checked
+        }, function () {
+            alert("Compsim is now set to: " + compSimInput.checked);
+        });
+    })
 });

@@ -18,6 +18,14 @@ chrome.storage.sync.get(['history'], function (items) {
     }
 });
 
+let compsim = false;
+chrome.storage.sync.get(['compSim'], function (items) {
+  compsim = items.compSim;
+    if (compsim == undefined) {
+      compsim = false;
+    }
+});
+
 let highlight = false;
 chrome.storage.sync.get(['highlight'], function (items) {
   highlight = items.highlight;
@@ -74,6 +82,9 @@ async function process() {
         if (lastIndex == nowIndex) { 
             // console.log('No Change');
         } else { 
+            if (toolSelect.value == "bpa_viewer"){
+              updateWPA();
+            }
             // console.log('New Time:', nowIndex);
             lastIndex = nowIndex;
             let currentEvent = document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nth-child(2)").value
@@ -158,6 +169,45 @@ async function process() {
             } else { 
                 // they dont have a PR
             }
+            if(compsim){
+              //single
+              let last5 = [];
+              Array.from(document.querySelectorAll("#stats > div.stattl > div > table > tbody > tr > td:nth-child(2)"))
+                .slice(0, 5)
+                .forEach((time) => {
+                  last5.push(time);
+                });
+              last5.sort((a, b) => {
+                let aTime = a.textContent;
+                let bTime = b.textContent;
+                let currSingle = aTime;
+                  if (currSingle.includes(":")) {
+                    // Handle minutes
+                    let minutes = currSingle.split(":")[0];
+                    let seconds = currSingle.split(":")[1];
+                    currSingle = minutes * 60 + parseFloat(seconds);
+                  }
+                aTime = currSingle;
+                currSingle = bTime;
+                  if (currSingle.includes(":")) {
+                    // Handle minutes
+                    let minutes = currSingle.split(":")[0];
+                    let seconds = currSingle.split(":")[1];
+                    currSingle = minutes * 60 + parseFloat(seconds);
+                  }
+                bTime = currSingle;
+
+                if (aTime < bTime) {
+                  return -1;
+                }
+                if (aTime > bTime) {
+                  return 1;
+                }
+                return 0;
+              });
+              !(highlight) ? last5[0].style.color = "dimgrey" : last5[0].style.backgroundColor = "dimgrey";
+              !(highlight) ? last5[4].style.color = "dimgrey" : last5[4].style.backgroundColor = "dimgrey";
+            }
         }
         // });
     }, 1000);
@@ -186,6 +236,7 @@ const observer = new MutationObserver((mutationsList) => {
       if (mutation.type === "characterData") {
           if(document.querySelector("head > title").textContent.includes("+")){
             toolSelect.appendChild(new Option("PR Viewer", "pr_viewer"));
+            toolSelect.appendChild(new Option("BPA/WPA", "bpa_viewer"));
           }
           break; 
       }
@@ -205,6 +256,13 @@ setTimeout(() => {
     console.log(event.value);
     if (toolSelect.value == "pr_viewer") {
       updatePRs();
+    }
+  });
+  toolSelect.appendChild(new Option("BPA/WPA", "bpa_viewer"));
+  toolSelect.addEventListener("change", async (event) => {
+    console.log(event.value);
+    if (toolSelect.value == "bpa_viewer") {
+      updateWPA();
     }
   });
 }, 5000);
@@ -268,6 +326,20 @@ async function updatePRs() {
     coolDiv;
 }
 
+async function updateWPA() {
+  let last4 = [];
+  Array.from(document.querySelectorAll("#stats > div.stattl > div > table > tbody > tr > td:nth-child(2)"))
+    .slice(0, 4)
+    .forEach((time) => {
+      last4.push(time.textContent);
+    });
+  let {BPA, Mean, WPA} = calculateMeans(last4);
+  console.log(BPA, Mean, WPA);
+  let coolDiv = `<h3 style="text-align: center;"> <p><b>BPA:</b> ${BPA}</p><br><p><b>WPA:</b> ${WPA}</p><br><p><b>Mean:</b> ${Mean}</p><br> </h3>`;
+  document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML =
+    coolDiv;
+}
+
 async function displayMsg(text) {
 
     // check if cstiemr+_ is already there 👍
@@ -298,4 +370,76 @@ async function displayMsg(text) {
     await new Promise(r => setTimeout(r, scrollNum * 1000));
     // replace with default
     newSpan.parentNode.replaceChild(defaultSpan, newSpan);
+}
+
+//stolen from my codepen :)
+function calculateMeans(times) {
+  let hasDNF = false;
+  const milliseconds = times.map(time => {
+    if (time.toLowerCase() === 'dnf') {
+      hasDNF = true;
+      return Infinity;
+    }
+
+    const components = time.split(':').map(Number);
+    let minutes = 0;
+    let seconds = 0;
+    let milliseconds = 0;
+
+    if (components.length >= 3) {
+      minutes = components[0] || 0;
+      seconds = components[1] || 0;
+      milliseconds = components[2] || 0;
+    } else if (components.length === 2) {
+      minutes = components[0] || 0;
+      seconds = components[1] || 0;
+    } else if (components.length === 1) {
+      seconds = components[0] || 0;
+    }
+
+    const totalMilliseconds = minutes * 60 * 1000 + seconds * 1000 + milliseconds;
+    return totalMilliseconds;
+  });
+
+  const nonDNFTimes = milliseconds.filter(time => time !== Infinity);
+
+  const sum = nonDNFTimes.reduce((acc, ms) => acc + ms, 0);
+  const mean = sum / nonDNFTimes.length;
+
+  const sortedTimes = nonDNFTimes.sort((a, b) => a - b);
+  const lowest = sortedTimes[0];
+  const highest = sortedTimes[sortedTimes.length - 1];
+
+  const sumWithoutLowest = sum - lowest;
+  const sumWithoutHighest = sum - highest;
+  const meanWithoutLowest = sumWithoutLowest / (nonDNFTimes.length - 1);
+  const meanWithoutHighest = sumWithoutHighest / (nonDNFTimes.length - 1);
+
+  return {
+    BPA: hasDNF ? 'DNF' : formatTime(meanWithoutHighest),
+    WPA: hasDNF ? 'DNF' : formatTime(meanWithoutLowest),
+    Mean: formatTime(mean),
+  };
+
+  function formatTime(milliseconds) {
+    const minutes = Math.floor(milliseconds / (60 * 1000));
+    const seconds = Math.floor((milliseconds % (60 * 1000)) / 1000);
+    let millisecondsRemaining = milliseconds % 1000;
+
+    millisecondsRemaining = Math.round(millisecondsRemaining * 10) / 100;
+
+    if (minutes === 0) {
+      if (millisecondsRemaining === 0) {
+        return `${seconds}`;
+      } else {
+        return `${seconds}.${padZero(Math.floor(millisecondsRemaining), 2)}`;
+      }
+    }
+
+    return `${minutes}:${padZero(seconds)}.${padZero(Math.floor(millisecondsRemaining), 2)}`;
+
+    function padZero(num, length = 2) {
+      return String(num).padStart(length, '0'); 
+    }
+  }
 }
