@@ -45,7 +45,7 @@ let country = "Canada";
 chrome.storage.sync.get(['countryDropdown'], function (items) {
   country = items.countryDropdown;
     if (country == undefined) {
-      country = Canada;
+      country = "Canada";
     }
 });
 
@@ -393,11 +393,12 @@ async function updateWPA() {
   //console.log(BPA, Mean, WPA);
   let coolDiv = `<h3 style="text-align: center;"> <p style="color: green"><b>BPA:</b> ${BPA}</p><br><p style="color: red"><b>WPA:</b> ${WPA}</p><br><p><b>Mo4:</b> ${Mean}</p><br> </h3>`;
   if(!(country == "None")){
-      let nr = canadianRecords[conversionTable[document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nth-child(2)").value]].average;
-      coolDiv += `NR: ${nr}</p><br> </h3>`;
+     let nr = canadianRecords[conversionTable[document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nth-child(2)").value]].average;
+     coolDiv += `<h3 style="text-align: center;"><b>NR: ${nr}<b></p> </h3>`;
       if(BPA <= nr){
-          coolDiv.replace("color: green","background: linear-gradient(90deg, #f00 14%, #FFA700 28%, #FFD700 42%, #14FF00 56%, #0087FF 70%, #D300FF 84%), -webkit-background-clip: text, -webkit-text-stroke: 1px transparent, color: #000");
-      }
+        console.log("BPA is NR")
+          coolDiv = coolDiv.replace("color: green","color: aqua");
+        }
     } 
   document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML =
     coolDiv;
