@@ -392,7 +392,7 @@ async function updateWPA() {
   let {BPA, Mean, WPA} = calculateMeans(last4);
   //console.log(BPA, Mean, WPA);
   let coolDiv = `<h3 style="text-align: center;"> <p style="color: green"><b>BPA:</b> ${BPA}</p><br><p style="color: red"><b>WPA:</b> ${WPA}</p><br><p><b>Mo4:</b> ${Mean}</p><br> </h3>`;
-  if(!(country == "None)){
+  if(!(country == "None")){
       let nr = canadianRecords[conversionTable[document.querySelector("#scrambleDiv > div.title > nobr:nth-child(1) > select:nth-child(2)").value]].average;
       coolDiv += `NR: ${nr}</p><br> </h3>`;
       if(BPA <= nr){
