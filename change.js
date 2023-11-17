@@ -390,10 +390,10 @@ async function displayMsg(text) {
 
 //stolen from my codepen :)
 function calculateMeans(times) {
-  let hasDNF = false;
+  let hasDNF = 0;
   const milliseconds = times.map(time => {
     if (time.toLowerCase() === 'dnf') {
-      hasDNF = true;
+      hasDNF += 1;
       return Infinity;
     }
 
@@ -432,7 +432,7 @@ function calculateMeans(times) {
   const meanWithoutHighest = sumWithoutHighest / (nonDNFTimes.length - 1);
 
   return {
-    BPA: hasDNF ? 'DNF' : formatTime(meanWithoutHighest),
+    BPA: (hasDNF == 2) ? 'DNF' : formatTime(meanWithoutHighest),
     WPA: hasDNF ? 'DNF' : formatTime(meanWithoutLowest),
     Mean: formatTime(mean),
   };
