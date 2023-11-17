@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
     chrome.storage.sync.get(['nodisplay'], function (items) {
         nodisplayElem.checked = items.nodisplay;
     });
+    const countryElem = document.getElementById('countryDropdown');
+    chrome.storage.sync.get(['countryDropdown'], function (items) {
+        if(items.countryDropdown){countryDropdown.value = items.countryDropdown;}
+    });
 
     // if not set, make default
     chrome.storage.sync.get(['scroll'], function (items) {
@@ -132,6 +136,15 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
             nodisplay: nodisplayInput.checked
         }, function () {
             alert("Nodisplay is now set to: " + nodisplayInput.checked);
+        });
+    })
+
+    const countryInput = document.getElementById('countryDropdown');
+    countryInput.addEventListener('change', (e) => {
+        chrome.storage.sync.set({
+            countryDropdown: countryDropdown.value
+        }, function () {
+            alert("countryDropdown is now set to: " + countryDropdown.value);
         });
     })
 });
