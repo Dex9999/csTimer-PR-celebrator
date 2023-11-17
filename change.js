@@ -73,6 +73,16 @@ const conversionTable = {
 // NO MULTI BLIND SUPPORT I HATE FORMAT
 // "r3ni": "333mbf"
 
+let doubleCheck = false;
+
+document.addEventListener('keydown', function(event) {
+    // Ctrl+2  Ctrl+3
+    if ((event.ctrlKey || event.metaKey) && event.keyCode == 50 || (event.ctrlKey || event.metaKey) && event.keyCode == 51) {
+        doubleCheck = true;
+        updateWPA();
+    }
+});
+
 process();
 
 async function process() {
@@ -87,9 +97,9 @@ async function process() {
         toMonitor = toMonitor.textContent;
         nowIndex = toMonitor;
         // console.log(lastIndex, nowIndex)
-        if (lastIndex == nowIndex) { 
-            // console.log('No Change');
-        } else { 
+        if (!(lastIndex == nowIndex) || doubleCheck){
+            doubleCheck = false;
+            
             if (toolSelect.value == "bpa_viewer"){
               updateWPA();
             }
@@ -339,6 +349,7 @@ async function updatePRs() {
   document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML =
     coolDiv;
 }
+
 
 async function updateWPA() {
   let last4 = [];
