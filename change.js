@@ -76,8 +76,8 @@ const conversionTable = {
 let doubleCheck = false;
 
 document.addEventListener('keydown', function(event) {
-    // Ctrl+2  Ctrl+3
-    if ((event.ctrlKey || event.metaKey) && event.keyCode == 50 || (event.ctrlKey || event.metaKey) && event.keyCode == 51) {
+    // Ctrl+1  Ctrl+2  Ctrl+3
+    if ((event.ctrlKey || event.metaKey) && event.keyCode == 49 || (event.ctrlKey || event.metaKey) && event.keyCode == 50 || (event.ctrlKey || event.metaKey) && event.keyCode == 51) {
         doubleCheck = true;
         updateWPA();
     }
