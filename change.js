@@ -34,6 +34,14 @@ chrome.storage.sync.get(['highlight'], function (items) {
     }
 });
 
+let nodisplay = false;
+chrome.storage.sync.get(['nodisplay'], function (items) {
+  nodisplay = items.nodisplay;
+    if (nodisplay == undefined) {
+      nodisplay = false;
+    }
+});
+
 let hex = "#00FF00";
   chrome.storage.sync.get(['hex'], function (items) {
   hex = items.hex;
@@ -173,10 +181,16 @@ async function process() {
               //single
               let last5 = [];
               Array.from(document.querySelectorAll("#stats > div.stattl > div > table > tbody > tr > td:nth-child(2)"))
-                .slice(0, 5)
+                .slice(0, 6)
                 .forEach((time) => {
                   last5.push(time);
                 });
+              for(let i = 0; i<last5.length; i++){
+                !(highlight) ? last5[i].style.color = "inherit" : last5[i].style.backgroundColor = "inherit";
+              }
+              //temp use 6 to clear colour from last iteration
+              last5.pop();
+
               last5.sort((a, b) => {
                 let aTime = a.textContent;
                 let bTime = b.textContent;
@@ -334,42 +348,44 @@ async function updateWPA() {
       last4.push(time.textContent);
     });
   let {BPA, Mean, WPA} = calculateMeans(last4);
-  console.log(BPA, Mean, WPA);
-  let coolDiv = `<h3 style="text-align: center;"> <p><b>BPA:</b> ${BPA}</p><br><p><b>WPA:</b> ${WPA}</p><br><p><b>Mean:</b> ${Mean}</p><br> </h3>`;
+  //console.log(BPA, Mean, WPA);
+  let coolDiv = `<h3 style="text-align: center;"> <p style="color: green"><b>BPA:</b> ${BPA}</p><br><p style="color: red"><b>WPA:</b> ${WPA}</p><br><p><b>Mo4:</b> ${Mean}</p><br> </h3>`;
   document.querySelector("#toolsDiv > div:nth-child(1) >div").innerHTML =
     coolDiv;
 }
 
 async function displayMsg(text) {
+  if (!nodisplay) {
 
-    // check if cstiemr+_ is already there 👍
-    // change color to green
-    let csPlus = document.querySelector("head > title").textContent.includes("+") ? `<small class="csplus">+</small>` : "";
+      // check if cstiemr+_ is already there 👍
+      // change color to green
+      let csPlus = document.querySelector("head > title").textContent.includes("+") ? `<small class="csplus">+</small>` : "";
 
-    var defaultSpan = document.createElement("span");
-    defaultSpan.innerHTML = `<span style="animation-duration: 5.1s;" class="">csTimer${csPlus}</span>`;
+      var defaultSpan = document.createElement("span");
+      defaultSpan.innerHTML = `<span style="animation-duration: 5.1s;" class="">csTimer${csPlus}</span>`;
 
-    var newSpan = document.createElement("span");
+      var newSpan = document.createElement("span");
 
-    newSpan.innerHTML = `
-    <div class="pad" style="width: 332px;">csTimer${csPlus}</div>
-    <span style="font-family: sans-serif; margin: 0 1em;">${text}</span>
-    <div class="pad" style="width: 332px; position: absolute;">csTimer${csPlus}</div>
-    `;
-    newSpan.setAttribute("style", `animation-duration: ${scrollNum}s;`);
-    newSpan.setAttribute("class", "hint");
+      newSpan.innerHTML = `
+      <div class="pad" style="width: 332px;">csTimer${csPlus}</div>
+      <span style="font-family: sans-serif; margin: 0 1em;">${text}</span>
+      <div class="pad" style="width: 332px; position: absolute;">csTimer${csPlus}</div>
+      `;
+      newSpan.setAttribute("style", `animation-duration: ${scrollNum}s;`);
+      newSpan.setAttribute("class", "hint");
 
-    var logoSpan = document.querySelector("#logo > div > span");
+      var logoSpan = document.querySelector("#logo > div > span");
 
-    // wait until span class is empty
-    while (logoSpan.className != "") {
-        await new Promise(r => setTimeout(r, 100));
-    }
-    logoSpan.parentNode.replaceChild(newSpan, logoSpan);
-    // wait (scroll) seconds
-    await new Promise(r => setTimeout(r, scrollNum * 1000));
-    // replace with default
-    newSpan.parentNode.replaceChild(defaultSpan, newSpan);
+      // wait until span class is empty
+      while (logoSpan.className != "") {
+          await new Promise(r => setTimeout(r, 100));
+      }
+      logoSpan.parentNode.replaceChild(newSpan, logoSpan);
+      // wait (scroll) seconds
+      await new Promise(r => setTimeout(r, scrollNum * 1000));
+      // replace with default
+      newSpan.parentNode.replaceChild(defaultSpan, newSpan);
+  }
 }
 
 //stolen from my codepen :)

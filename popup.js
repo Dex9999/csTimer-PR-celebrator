@@ -24,6 +24,14 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
     chrome.storage.sync.get(['highlight'], function (items) {
         highlightElem.checked = items.highlight;
     });
+    const compSimElem = document.getElementById('compsim');
+    chrome.storage.sync.get(['compSim'], function (items) {
+        compSimElem.checked = items.compSim;
+    });
+    const nodisplayElem = document.getElementById('nodisplay');
+    chrome.storage.sync.get(['nodisplay'], function (items) {
+        nodisplayElem.checked = items.nodisplay;
+    });
 
     // if not set, make default
     chrome.storage.sync.get(['scroll'], function (items) {
@@ -116,6 +124,14 @@ document.addEventListener('DOMContentLoaded', function () { // check if exists t
             compSim: compSimInput.checked
         }, function () {
             alert("Compsim is now set to: " + compSimInput.checked);
+        });
+    })
+    const nodisplayInput = document.getElementById('nodisplay');
+    nodisplayInput.addEventListener('change', (e) => {
+        chrome.storage.sync.set({
+            nodisplay: nodisplayInput.checked
+        }, function () {
+            alert("Nodisplay is now set to: " + nodisplayInput.checked);
         });
     })
 });
